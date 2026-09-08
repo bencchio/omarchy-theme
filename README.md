@@ -55,6 +55,16 @@ on a system with no AUR:
 ./install.sh --prefix "$HOME/.local"
 ```
 
+### Prebuilt binaries
+
+Each release attaches the shared object and the C bridge header, built from
+that tag, for `x86_64` — no toolchain needed to link against them:
+
+<https://github.com/bencchio/omarchy-theme/releases>
+
+They carry no `pkg-config` or CMake package, so a build consuming them points
+at the two files directly.
+
 ### Build and install manually
 
 For full control over the build, run the same steps `install.sh` wraps:

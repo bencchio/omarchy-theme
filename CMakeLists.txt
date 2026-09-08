@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
 
 # The version a consumer links against — read from Cargo.toml so the two never drift, since
-# Cargo.toml is the single source this project versions the C ABI from (see
-# docs/BRIDGE.md § Versioning). A beta reads as three dot-separated numbers to
-# CMake's project(VERSION); the pre-release suffix is stripped for that call and restated in full
-# everywhere the version is actually published (the pkg-config file, the package config).
+# Cargo.toml is the single source this project versions the C ABI from (see docs/BRIDGE.md §
+# Versioning). A beta reads as three dot-separated numbers to CMake's project(VERSION); the
+# pre-release suffix is stripped for that call and restated in full everywhere the version is
+# actually published (the pkg-config file, the package config).
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/Cargo.toml" CARGO_TOML)
 string(REGEX MATCH "\nversion = \"([^\"]+)\"" _ "${CARGO_TOML}")
 set(OMARCHY_THEME_FULL_VERSION "${CMAKE_MATCH_1}")
