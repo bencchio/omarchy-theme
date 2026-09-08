@@ -45,10 +45,19 @@ cd packaging/arch
 makepkg -si
 ```
 
+### Anywhere else
+
+`install.sh` builds and installs the library without going through a
+distribution package — the quick way to try a build before packaging it, or
+on a system with no AUR:
+
+```sh
+./install.sh --prefix "$HOME/.local"
+```
+
 ### Build and install manually
 
-On any other system, the library is built from this repository. Choose the
-prefix it installs into.
+For full control over the build, run the same steps `install.sh` wraps:
 
 ```sh
 cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$HOME/.local"
