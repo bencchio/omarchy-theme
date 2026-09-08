@@ -12,7 +12,7 @@ license=('MIT')
 depends=()
 makedepends=('rust' 'cmake')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/bencchio/omarchy-theme/archive/refs/tags/$pkgver.tar.gz")
-sha256sums=('ec88e9c208f2c6fece15a486754bf01adcf76574249ec3263f3f1ee09485cfd9')
+sha256sums=('a97334dafa9970b4e784ee01b45f5b3641690926fa1e672b99f4f422ad140c75')
 
 build() {
 	cd "$pkgname-$pkgver"
