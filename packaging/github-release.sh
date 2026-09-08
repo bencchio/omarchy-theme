@@ -88,11 +88,18 @@ if ((DRY_RUN == 1)); then
 	exit 0
 fi
 
-gh release create "${TAG}" \
-	--repo "$(git -C "${REPO_ROOT}" remote get-url origin)" \
-	--title "${TAG}" \
-	--notes "${notes}" \
-	"${package}"
+readonly REMOTE="$(git -C "${REPO_ROOT}" remote get-url origin)"
+if gh release view "${TAG}" --repo "${REMOTE}" >/dev/null 2>&1; then
+	# Replaces the attachment in place, so a packaging fix can reach an existing release without
+	# moving the tag it was cut from.
+	gh release upload "${TAG}" "${package}" --repo "${REMOTE}" --clobber
+else
+	gh release create "${TAG}" \
+		--repo "${REMOTE}" \
+		--title "${TAG}" \
+		--notes "${notes}" \
+		"${package}"
+fi
 
 # Leaves the repository's PKGBUILD naming the release that now exists, so a clone builds the current
 # one rather than whichever release it was last pinned to.

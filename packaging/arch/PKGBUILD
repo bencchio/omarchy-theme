@@ -16,6 +16,9 @@ sha256sums=('ec88e9c208f2c6fece15a486754bf01adcf76574249ec3263f3f1ee09485cfd9')
 
 build() {
 	cd "$pkgname-$pkgver"
+	# makepkg remaps $srcdir out of the binary, but dependency sources live in the packager's Cargo
+	# cache, so their panic paths would ship the packager's home directory to everyone who installs.
+	export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${CARGO_HOME:-$HOME/.cargo}=/cargo"
 	cmake -S . -B build \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_BUILD_TYPE=Release
