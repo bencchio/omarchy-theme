@@ -55,15 +55,19 @@ on a system with no AUR:
 ./install.sh --prefix "$HOME/.local"
 ```
 
-### Prebuilt binaries
+### From a release
 
-Each release attaches the shared object and the C bridge header, built from
-that tag, for `x86_64` — no toolchain needed to link against them:
+Each release carries the Arch package already built for `x86_64`, so installing
+it needs no toolchain:
 
 <https://github.com/bencchio/omarchy-theme/releases>
 
-They carry no `pkg-config` or CMake package, so a build consuming them points
-at the two files directly.
+```sh
+sudo pacman -U omarchy-theme-<version>-1-x86_64.pkg.tar.zst
+```
+
+Releases also carry the source archives GitHub generates for the tag, for
+building on anything that is not Arch.
 
 ### Build and install manually
 

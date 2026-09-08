@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Publishes a GitHub release for an existing tag, attaching the shared object and the C bridge
-# header built from that tag's own source rather than the working tree.
+# Publishes a GitHub release for an existing tag, attaching the Arch package built from that tag's
+# own source — the source archives themselves come from GitHub (see README.md § Installing).
 set -euo pipefail
 
 TAG=""
@@ -10,7 +10,7 @@ _usage() {
 	cat <<-EOF >&2
 	Usage: $(basename "$0") <tag> [--dry-run]
 	  <tag>      an existing tag to publish a release for
-	  --dry-run  build and report, without touching GitHub
+	  --dry-run  build and report, without touching GitHub or the repository
 	EOF
 	exit 1
 }
@@ -32,13 +32,16 @@ done
 
 [[ -n "${TAG}" ]] || _usage
 
-for tool in git cmake cargo gh; do
+for tool in git curl makepkg gh; do
 	command -v "${tool}" >/dev/null 2>&1 \
-		|| _fail "missing required tool '${tool}' — install it first (e.g. pacman -S git cmake rust github-cli on Arch)"
+		|| _fail "missing required tool '${tool}' — install it first (e.g. pacman -S git curl pacman-contrib github-cli on Arch)"
 done
 
 readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+readonly PKGBUILD="${SCRIPT_DIR}/arch/PKGBUILD"
+
+[[ -f "${PKGBUILD}" ]] || _fail "no PKGBUILD at ${PKGBUILD}"
 
 git -C "${REPO_ROOT}" rev-parse -q --verify "refs/tags/${TAG}" >/dev/null \
 	|| _fail "tag '${TAG}' does not exist locally"
@@ -51,27 +54,26 @@ fi
 workdir="$(mktemp -d)"
 trap 'rm -rf "${workdir}"' EXIT
 
-readonly SOURCE="${workdir}/source"
-readonly PREFIX="${workdir}/prefix"
-mkdir -p "${SOURCE}"
-git -C "${REPO_ROOT}" archive --format=tar "${TAG}" | tar -x -C "${SOURCE}"
+# The checksum is taken from the archive GitHub serves rather than from the PKGBUILD, because a
+# tarball cannot declare its own checksum: it contains the PKGBUILD that would have to state it.
+readonly TARBALL_URL="$(git -C "${REPO_ROOT}" remote get-url origin | sed 's/\.git$//')/archive/refs/tags/${TAG}.tar.gz"
+curl -fsSL "${TARBALL_URL}" -o "${workdir}/source.tar.gz" \
+	|| _fail "could not download the source archive for '${TAG}' from ${TARBALL_URL}"
+checksum="$(sha256sum "${workdir}/source.tar.gz" | cut -d' ' -f1)"
 
-cmake -S "${SOURCE}" -B "${SOURCE}/build" \
-	-DCMAKE_INSTALL_PREFIX="${PREFIX}" \
-	-DCMAKE_BUILD_TYPE=Release >/dev/null
-cmake --build "${SOURCE}/build" >/dev/null
-cmake --install "${SOURCE}/build" >/dev/null
+sed -e "s/^pkgver=.*/pkgver=${TAG}/" \
+    -e "s/^sha256sums=.*/sha256sums=('${checksum}')/" \
+    "${PKGBUILD}" > "${workdir}/PKGBUILD"
 
-shared_object="$(find "${PREFIX}/lib" -maxdepth 1 -type f -name 'libomarchy_theme.so.*' -print -quit)"
-[[ -n "${shared_object}" ]] || _fail "the build produced no shared object under ${PREFIX}/lib"
+(cd "${workdir}" && makepkg >/dev/null)
+
+package="$(find "${workdir}" -maxdepth 1 -type f -name '*.pkg.tar.zst' ! -name '*-debug-*' -print -quit)"
+[[ -n "${package}" ]] || _fail "makepkg produced no package under ${workdir}"
 
 # The installed symlink pointing at the shared object is named after the SONAME the loader resolves,
 # which is why the name is read from the link rather than from the binary's own header.
-soname="$(find "${PREFIX}/lib" -maxdepth 1 -type l -lname "$(basename "${shared_object}")" -printf '%f' -quit)"
-[[ -n "${soname}" ]] || _fail "the build produced no SONAME symlink under ${PREFIX}/lib"
-
-header="${PREFIX}/include/omarchy_theme.h"
-[[ -f "${header}" ]] || _fail "the build installed no C bridge header at ${header}"
+soname="$(find "${workdir}/pkg" -type l -name 'libomarchy_theme.so.*' -printf '%f\n' | sort | head -n1)"
+[[ -n "${soname}" ]] || _fail "the package carries no SONAME symlink"
 
 notes="$(git -C "${REPO_ROOT}" tag -l --format='%(contents)' "${TAG}")
 SONAME: ${soname}
@@ -79,8 +81,8 @@ Architecture: $(uname -m)"
 
 if ((DRY_RUN == 1)); then
 	echo "github-release: would publish ${TAG} with:"
-	echo "  $(basename "${shared_object}")"
-	echo "  $(basename "${header}")"
+	echo "  $(basename "${package}")"
+	echo "  plus the source archives GitHub generates for the tag"
 	echo "--- release notes ---"
 	echo "${notes}"
 	exit 0
@@ -90,7 +92,13 @@ gh release create "${TAG}" \
 	--repo "$(git -C "${REPO_ROOT}" remote get-url origin)" \
 	--title "${TAG}" \
 	--notes "${notes}" \
-	"${shared_object}" \
-	"${header}"
+	"${package}"
+
+# Leaves the repository's PKGBUILD naming the release that now exists, so a clone builds the current
+# one rather than whichever release it was last pinned to.
+sed -i -e "s/^pkgver=.*/pkgver=${TAG}/" \
+       -e "s/^sha256sums=.*/sha256sums=('${checksum}')/" \
+       "${PKGBUILD}"
 
 echo "github-release: published ${TAG}"
+echo "github-release: PKGBUILD now points at ${TAG} — commit it"

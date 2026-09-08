@@ -1,4 +1,7 @@
 # Maintainer: bencchio <bencchio@gmail.com>
+# pkgver names the latest published release, which is one step behind the tag containing this file:
+# sha256sums is the checksum of the archive built from a tag, and that archive contains this file,
+# so a tag can never state its own. packaging/github-release.sh rewrites both when it publishes.
 pkgname=omarchy-theme
 pkgver=0.2.1
 pkgrel=1
