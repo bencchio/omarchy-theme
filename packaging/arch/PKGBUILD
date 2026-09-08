@@ -3,7 +3,7 @@
 # sha256sums is the checksum of the archive built from a tag, and that archive contains this file,
 # so a tag can never state its own. packaging/github-release.sh rewrites both when it publishes.
 pkgname=omarchy-theme
-pkgver=0.2.1
+pkgver=0.3.0
 pkgrel=1
 pkgdesc="Colors for Omarchy applications, inherited from the system active theme"
 arch=('x86_64' 'aarch64')
@@ -12,7 +12,7 @@ license=('MIT')
 depends=()
 makedepends=('rust' 'cmake')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/bencchio/omarchy-theme/archive/refs/tags/$pkgver.tar.gz")
-sha256sums=('1a73830b57ff93e50dd17920b0b6512b6ca0913addfd2921d2df21993eb49696')
+sha256sums=('ec88e9c208f2c6fece15a486754bf01adcf76574249ec3263f3f1ee09485cfd9')
 
 build() {
 	cd "$pkgname-$pkgver"
