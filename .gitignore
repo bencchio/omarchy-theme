@@ -1,0 +1,20 @@
+# Editor temp files
+*.swp
+*.swo
+*~
+.*.swp
+.*.swo
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+TEMP.md
+temp/
+explore/
