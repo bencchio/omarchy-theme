@@ -36,10 +36,19 @@ representations live on the bridge instead: v1 is palettes only.
 - CMake 3.20 or newer.
 - Qt 6 with the Quick module — only to build the reference application.
 
-### Build and install
+### On Arch Linux
 
-There is no distribution package yet; the library is built from this
-repository. Choose the prefix it installs into.
+`packaging/arch/PKGBUILD` builds and installs the library with `makepkg`:
+
+```sh
+cd packaging/arch
+makepkg -si
+```
+
+### Build and install manually
+
+On any other system, the library is built from this repository. Choose the
+prefix it installs into.
 
 ```sh
 cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$HOME/.local"

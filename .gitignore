@@ -29,3 +29,10 @@ Cargo.lock
 build/
 gui/build/
 gui/.qtc_clangd/
+
+# makepkg — build del PKGBUILD de Arch
+packaging/arch/src/
+packaging/arch/pkg/
+packaging/arch/*.tar.gz
+packaging/arch/*.tar.zst
+packaging/arch/*.tar.xz

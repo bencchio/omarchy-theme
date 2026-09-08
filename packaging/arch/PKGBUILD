@@ -1,0 +1,25 @@
+# Maintainer: bencchio <bencchio@gmail.com>
+pkgname=omarchy-theme
+pkgver=0.2.1
+pkgrel=1
+pkgdesc="Colors for Omarchy applications, inherited from the system active theme"
+arch=('x86_64' 'aarch64')
+url="https://github.com/bencchio/omarchy-theme"
+license=('MIT')
+depends=()
+makedepends=('rust' 'cmake')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/bencchio/omarchy-theme/archive/refs/tags/$pkgver.tar.gz")
+sha256sums=('1a73830b57ff93e50dd17920b0b6512b6ca0913addfd2921d2df21993eb49696')
+
+build() {
+	cd "$pkgname-$pkgver"
+	cmake -S . -B build \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release
+	cmake --build build
+}
+
+package() {
+	cd "$pkgname-$pkgver"
+	DESTDIR="$pkgdir" cmake --install build
+}
