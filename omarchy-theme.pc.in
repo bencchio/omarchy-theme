@@ -1,0 +1,9 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: omarchy-theme
+Description: Colors for Omarchy applications, inherited from the system active theme.
+Version: @OMARCHY_THEME_FULL_VERSION@
+Libs: -L${libdir} -lomarchy_theme
+Cflags: -I${includedir}

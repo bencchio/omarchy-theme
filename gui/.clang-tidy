@@ -1,0 +1,12 @@
+# Two checks are excluded beyond that base list because they flag Qt's own ownership idioms, not
+# a real defect: QVariantMap::operator[] (used throughout the QML bridge to build role data) and
+# `new T(parent)` handed to a QObject parent, which Qt's parent/child tree already owns and frees.
+Checks: >
+  bugprone-*,
+  performance-*,
+  readability-*,
+  modernize-*,
+  cppcoreguidelines-*,
+  -modernize-use-trailing-return-type,
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
+  -cppcoreguidelines-owning-memory

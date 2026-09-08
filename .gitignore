@@ -18,3 +18,14 @@ Thumbs.db
 TEMP.md
 temp/
 explore/
+
+# Rust — el target-dir del proyecto vive en src/target (.cargo/config.toml)
+src/target/
+
+# Cargo.lock — librería, el lockfile no se versiona (queda a criterio del consumidor)
+Cargo.lock
+
+# CMake — build de la librería y de la app de referencia
+build/
+gui/build/
+gui/.qtc_clangd/
